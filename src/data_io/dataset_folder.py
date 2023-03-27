@@ -9,7 +9,8 @@ import cv2
 import torch
 from torchvision import datasets
 import numpy as np
-
+import os
+import pandas as pd
 
 def opencv_loader(path):
     img = cv2.imread(path)
@@ -28,6 +29,44 @@ class DatasetFolderFT(datasets.ImageFolder):
         path, target = self.samples[index]
         sample = self.loader(path)
         # generate the FT picture of the sample
+        ft_sample = generate_FT(sample)
+        if sample is None:
+            print('image is None --> ', path)
+        if ft_sample is None:
+            print('FT image is None -->', path)
+        assert sample is not None
+
+        ft_sample = cv2.resize(ft_sample, (self.ft_width, self.ft_height))
+        ft_sample = torch.from_numpy(ft_sample).float()
+        ft_sample = torch.unsqueeze(ft_sample, 0)
+
+        if self.transform is not None:
+            try:
+                sample = self.transform(sample)
+            except Exception as err:
+                print('Error Occured: %s' % err, path)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+        return sample, ft_sample, target
+
+
+class CelebACroppedFTDataset(torch.utils.Dataset):
+    def __init__(self, root, set_type='train.txt', transform=None, 
+                target_transform=None,ft_width=10, ft_height=10, loader=opencv_loader):
+        super(CelebACroppedFTDataset, self).__init__(root, transform, loader)
+        self.root = root
+        self.set_type=set_type
+        self.df = pd.read_csv(os.path.join(self.root,self.set_type), header=None, delimiter='\t')
+        self.ft_width = ft_width
+        self.ft_height = ft_height
+    
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        image_path = os.path.join(self.root, self.df.iloc[idx,0])
+        target = int(self.df.iloc[idx,4])
+        sample = self.loader(image_path)
         ft_sample = generate_FT(sample)
         if sample is None:
             print('image is None --> ', path)
