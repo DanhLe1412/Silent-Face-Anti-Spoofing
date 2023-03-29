@@ -52,7 +52,7 @@ class DatasetFolderFT(datasets.ImageFolder):
 
 class CelebACroppedFTDataset(torch.utils.Dataset):
     def __init__(self, root, set_type='train.txt', transform=None, 
-                target_transform=None,ft_width=10, ft_height=10, loader=opencv_loader):
+                ft_width=10, ft_height=10, loader=opencv_loader):
         super(CelebACroppedFTDataset, self).__init__(root, transform, loader)
         self.root = root
         self.set_type=set_type
@@ -69,9 +69,9 @@ class CelebACroppedFTDataset(torch.utils.Dataset):
         sample = self.loader(image_path)
         ft_sample = generate_FT(sample)
         if sample is None:
-            print('image is None --> ', path)
+            print('image is None --> ', image_path)
         if ft_sample is None:
-            print('FT image is None -->', path)
+            print('FT image is None -->', image_path)
         assert sample is not None
 
         ft_sample = cv2.resize(ft_sample, (self.ft_width, self.ft_height))
@@ -82,7 +82,7 @@ class CelebACroppedFTDataset(torch.utils.Dataset):
             try:
                 sample = self.transform(sample)
             except Exception as err:
-                print('Error Occured: %s' % err, path)
+                print('Error Occured: %s' % err, image_path)
         if self.target_transform is not None:
             target = self.target_transform(target)
         return sample, ft_sample, target

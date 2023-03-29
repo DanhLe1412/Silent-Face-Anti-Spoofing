@@ -13,7 +13,7 @@ from tensorboardX import SummaryWriter
 
 from src.utility import get_time
 from src.model_lib.MultiFTNet import MultiFTNet
-from src.data_io.dataset_loader import get_train_loader
+from src.data_io.dataset_loader import get_train_loader, get_val_loader
 
 
 class TrainMain:
@@ -24,6 +24,7 @@ class TrainMain:
         self.step = 0
         self.start_epoch = 0
         self.train_loader = get_train_loader(self.conf)
+        self.val_loader = get_val_loader(self.conf)
 
     def train_model(self):
         self._init_model_param()
@@ -52,6 +53,7 @@ class TrainMain:
         running_loss_cls = 0.
         running_loss_ft = 0.
         is_first = True
+        running_val_acc = 0.
         for e in range(self.start_epoch, self.conf.epochs):
             if is_first:
                 self.writer = SummaryWriter(self.conf.log_path)
@@ -97,9 +99,31 @@ class TrainMain:
                     self._save_state(time_stamp, extra=self.conf.job_name)
             self.schedule_lr.step()
 
+            for sample, ft_sample, targets in tqdm(iter(self.eval_loader)):
+                imgs = [sample, ft_sample]
+                labels = targets
+
+                val_acc = self._eval_batch_data(imgs, labels)
+                val_acc += running_val_acc
+                val_step += 1
+
+                if val_step % self.board_loss_every == 0 and val_step != 0:
+                    acc_board = running_val_acc/self.board_loss_every
+                    self.writer.add_scalar(
+                        'Validation/Acc', acc_board, val_step
+                    )
+                    running_val_acc = 0
+
         time_stamp = get_time()
         self._save_state(time_stamp, extra=self.conf.job_name)
         self.writer.close()
+
+    def _eval_batch_data(self, imgs, labels):
+        self.model.eval()
+        labels = labels.to(self.conf.device)
+        embeddings, feature_map = self.model.forward(imgs[0].to(self.conf.device))
+        acc = self._get_accuracy(embeddings, labels)[0]
+        return acc
 
     def _train_batch_data(self, imgs, labels):
         self.optimizer.zero_grad()
