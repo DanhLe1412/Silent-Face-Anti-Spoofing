@@ -15,7 +15,7 @@ def parse_args():
     """parsing and configuration"""
     desc = "Silence-FAS"
     parser = argparse.ArgumentParser(description=desc)
-    parser.add_argument("--device_ids", type=str, default="1", help="which gpu id, 0123")
+    parser.add_argument("--device_ids", type=str, default="0", help="which gpu id, 0123")
     args = parser.parse_args()
     cuda_devices = [int(elem) for elem in args.device_ids]
     os.environ["CUDA_VISIBLE_DEVICES"] = ','.join(map(str, cuda_devices))

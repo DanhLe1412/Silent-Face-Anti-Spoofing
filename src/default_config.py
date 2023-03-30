@@ -50,7 +50,7 @@ def get_default_config():
 
 def update_config(args, conf):
     conf.devices = args.devices
-    w_input, h_input = get_width_height(args.patch_info)
+    w_input, h_input = 60,80
     conf.input_size = [h_input, w_input]
     conf.kernel_size = get_kernel(h_input, w_input)
     conf.device = "cuda:{}".format(conf.devices[0]) if torch.cuda.is_available() else "cpu"
@@ -59,7 +59,7 @@ def update_config(args, conf):
     conf.ft_height = 2*conf.kernel_size[0]
     conf.ft_width = 2*conf.kernel_size[1]
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    job_name = 'Anti_Spoofing_{}'.format(args.patch_info)
+    job_name = 'Anti_Spoofing'
     log_path = '{}/{}/{} '.format(conf.log_path, job_name, current_time)
     snapshot_dir = '{}/{}'.format(conf.snapshot_dir_path, job_name)
 
