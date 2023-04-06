@@ -33,7 +33,7 @@ def get_default_config():
     conf.embedding_size = 128
 
     # dataset
-    conf.train_root_path = './datasets/rgb_image'
+    conf.train_root_path = '/content/MainData'
 
     # save file path
     conf.snapshot_dir_path = './saved_logs/snapshot'

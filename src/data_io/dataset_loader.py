@@ -22,7 +22,7 @@ def get_train_loader(conf):
         trans.ToTensor()
     ])
     trainset = CelebACroppedFTDataset(root=conf.train_root_path, 
-                                      set_type="train.txt", 
+                                      set_type="train", 
                                       transform=train_transform,
                                       ft_width=conf.ft_width, 
                                       ft_height=conf.ft_height)
@@ -46,7 +46,7 @@ def get_val_loader(conf):
         trans.ToTensor()
     ])
     dataset = CelebACroppedFTDataset(root=conf.train_root_path,
-                                      set_type="val.txt", 
+                                      set_type="test", 
                                       transform=train_transform,
                                       ft_width=conf.ft_width, 
                                       ft_height=conf.ft_height)

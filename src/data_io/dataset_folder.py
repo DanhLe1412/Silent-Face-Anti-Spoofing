@@ -51,11 +51,11 @@ class DatasetFolderFT(datasets.ImageFolder):
 
 
 class CelebACroppedFTDataset(torch.utils.data.Dataset):
-    def __init__(self, root, set_type='train.txt', transform=None, 
+    def __init__(self, root, set_type='train', transform=None, 
                 ft_width=10, ft_height=10, loader=opencv_loader):
         self.root = root
         self.set_type=set_type
-        self.df = pd.read_csv(os.path.join(self.root,self.set_type), header=None, delimiter='\t')
+        self.images = self._get_all_image()
         self.ft_width = ft_width
         self.ft_height = ft_height
         self.loader = loader
@@ -63,10 +63,33 @@ class CelebACroppedFTDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.df)
+    
+    def _get_all_image(self):
+        ids = os.listdir(os.path.join(self.root_dir, self.set_type))
+        images = []
+        not_exsists = [0,0]
+        for id in ids:
+            try:
+                lives = [os.path.join(self.root_dir, self.set_type, id, 'live', img) for img in os.listdir(os.path.join(self.root_dir, self.set_type, id, 'live'))]
+                spoofs = [os.path.join(self.root_dir, self.set_type, id, 'spoof', img) for img in os.listdir(os.path.join(self.root_dir, self.set_type, id, 'spoof'))]
+            except:
+                if not os.path.exists(os.path.join(self.root_dir, self.set_type, id, 'live')):
+                    not_exsists[0] += 1
+                    print(os.path.join(self.root_dir, self.set_type, id, 'live'), "not exists")
+                
+                if not os.path.exists(os.path.join(self.root_dir, self.set_type, id, 'spoof')):
+                    not_exsists[1] += 1
+                    print(os.path.join(self.root_dir, self.set_type, id, 'spoof'), "not exists")
+                lives = []
+                spoofs = []
+            images += lives + spoofs
+        
+        print(f"Not exists: {not_exsists[0]} lives -  {not_exsists[1]} spoofs")
+        return sorted(images)
 
     def __getitem__(self, idx):
-        image_path = os.path.join(self.root, self.df.iloc[idx,0])
-        target = int(self.df.iloc[idx,4])
+        image_path = self.images[idx]
+        target = 1 if image_path.split("/")[-2] == "live" else 0
         sample = self.loader(image_path)
         ft_sample = generate_FT(sample)
         if sample is None:
