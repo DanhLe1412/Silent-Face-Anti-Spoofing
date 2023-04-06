@@ -53,7 +53,7 @@ class DatasetFolderFT(datasets.ImageFolder):
 class CelebACroppedFTDataset(torch.utils.data.Dataset):
     def __init__(self, root, set_type='train', transform=None, 
                 ft_width=10, ft_height=10, loader=opencv_loader):
-        self.root = root
+        self.root_dir = root
         self.set_type=set_type
         self.images = self._get_all_image()
         self.ft_width = ft_width
