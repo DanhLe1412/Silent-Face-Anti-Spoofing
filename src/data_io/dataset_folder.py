@@ -62,7 +62,7 @@ class CelebACroppedFTDataset(torch.utils.data.Dataset):
         self.transform = transform
 
     def __len__(self):
-        return len(self.df)
+        return len(self.images)
     
     def _get_all_image(self):
         ids = os.listdir(os.path.join(self.root_dir, self.set_type))

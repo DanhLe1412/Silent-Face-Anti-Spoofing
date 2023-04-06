@@ -25,7 +25,7 @@ def get_default_config():
     conf.gamma = 0.1
     conf.epochs = 25
     conf.momentum = 0.9
-    conf.batch_size = 1024
+    conf.batch_size = 256
 
     # model
     conf.num_classes = 2
@@ -33,7 +33,7 @@ def get_default_config():
     conf.embedding_size = 128
 
     # dataset
-    conf.train_root_path = '/content/MainData'
+    conf.train_root_path = '/mnt/ai_data/HuyAI/dataset/Liveness/CelebA_Spoof_origin_crop/Data'
 
     # save file path
     conf.snapshot_dir_path = './saved_logs/snapshot'

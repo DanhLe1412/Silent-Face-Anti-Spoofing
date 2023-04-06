@@ -99,7 +99,7 @@ class TrainMain:
                     self._save_state(time_stamp, extra=self.conf.job_name)
             self.schedule_lr.step()
 
-            for sample, ft_sample, targets in tqdm(iter(self.eval_loader)):
+            for sample, ft_sample, targets in tqdm(iter(self.val_loader)):
                 imgs = [sample, ft_sample]
                 labels = targets
 
